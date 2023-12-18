@@ -15,8 +15,8 @@
                         <span class="text-laa">จำนวนรางวัลทั้งหมดทุกรายการ {{sumAward}} รางวัล คงเหลือ {{sumAmount}} รางวัล</span> 
                        
                     </div>
-                    <div class="col-1">
-                       <button type="button" class="btn btn-primary btn-lg box-shadow mt-3" data-toggle="modal" data-target="#createAward"><i class="fa fa-gift fa-lg" aria-hidden="true"></i> เพิ่มของรางวัล / ลบ</button>
+                    <div class="col-3">
+                       <button type="button" class="btn btn-primary btn-lg box-shadow mt-3" data-toggle="modal" data-target="#createAward"><i class="fa fa-gift fa-lg" aria-hidden="true"></i> รางวัล</button>
                     </div>
                 </div>
                 
@@ -104,191 +104,206 @@
     </div>
 </template>
 <script>
-import Vue from 'vue';
-import store from './../store/store';
-import { mapActions } from 'vuex'
-import VueLocalStorage from 'vue-localstorage'
-Vue.use(VueLocalStorage)
+import Vue from "vue";
+import store from "./../store/store";
+import { mapActions } from "vuex";
+import VueLocalStorage from "vue-localstorage";
+Vue.use(VueLocalStorage);
 export default {
-    
-    data(){
-        return {
-            items:[],
-            newItem:{
-                name:'',
-                amount:null
-            },
-            sumAward:0,
-            sumAmount:0,
-        }
-    },
-    created(){
-        var data = Vue.localStorage.get('award');
-        if(data){
-            this.items = JSON.parse(Vue.localStorage.get('award')) ;
-             this.$store.commit('SET_REPORT',this.items.filter(it => it.status).length);
-             this.$store.commit('SET_AWARD',this.items.filter(la => !la.status).length);
-            this.findSumAward();
-        }
-       
-    },
-   
-    methods:{
-        
-        insertItem(){
-            if(this.newItem.name && (this.newItem.amount != 0 && this.newItem.amount)){
-                var id = 'A'
-                    +Math.floor(Math.random() * 10)
-                    + Math.floor(Math.random() * 10) + 
-                    + Math.floor(Math.random() * 10) + 
-                    + Math.floor(Math.random() * 10) + 
-                    + Math.floor(Math.random() * 10) + 
-                    new Date().getTime();
-                this.items.push({id:id,name:this.newItem.name,amount:this.newItem.amount,status:false});
-                this.newItem.name = '';
-                this.newItem.amount = '';
-                this.findSumAward();
-                this.$store.commit('SET_AWARD', this.items.filter(la => !la.status).length);
-                Vue.localStorage.set('award',JSON.stringify(this.items))
-            }
-        },
-        deleteItem(id){
-            
-            var key = this.items.map(item => item.id).indexOf(id);
-            if(key != -1){
-                if(this.items[key].status){
-                    this.$swal({
-                        title: 'ต้องการลบ ?',
-                        text: "คุณกำลังจะลบรางวัลที่เสร็จสิ้นแล้ว หลังจากลบแล้วข้อมูลรายงานและสิทธิ์จะถูกนำกลับคืนไปยังผู้เข้าร่วมทัน",
-                        type: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Yes, delete it!'
-                        }).then((result) => {
-                        if (result.value) {
-                           this.restorePrivilege(this.items[key].id,this.items[key].lucky)
-                           this.items.splice(key,1);
-                           this.$store.commit('SET_AWARD',this.items.filter(la => !la.status).length);
-                           this.$store.commit('SET_REPORT',this.items.filter(it => it.status).length);
-                           Vue.localStorage.set('award',JSON.stringify(this.items))
-                        }
-                    })
-                }else{
-                    this.items.splice(key,1);
-                    Vue.localStorage.set('award',JSON.stringify(this.items))
-                }
-               
-            }
-            
-        },
-        restorePrivilege(itemId,listLucky){
-            var data  = Vue.localStorage.get('user')
-            if(data){
-                var listUser = JSON.parse(data);
-                listLucky.forEach(lc => {
-                    var key = listUser.map(lu => lu.PERSONID).indexOf(lc.PERSONID);
-                    if(key != -1){
-                        listUser[key].privilege += 1;
-                        var keyItem = listUser[key].inventory.map(iv => iv.id).indexOf(itemId)
-                        if(keyItem != -1){
-                            listUser[key].inventory.splice(keyItem,1);
-                        }
-                    }
-                })
-                Vue.localStorage.set('user',JSON.stringify(listUser))
-            }
-        },
-        findSumAward(){
-            this.sumAward = this.items.reduce((acc,current) => {
-                return (+current.amount) + acc;
-            },0)
-            var award = this.items.filter(it => !it.status);
-          
-            this.sumAmount = award.reduce((acc,current) => {
-                return (+current.amount) + acc;
-            },0)
-            
-
-        },
-        onPaste(evt){
-            evt.preventDefault();
-        },
-        isNumber(evt) {
-            
-            evt = (evt) ? evt : window.event;
-            var charCode = (evt.which) ? evt.which : evt.keyCode;
-            if ((charCode > 31 && (charCode < 48 || charCode > 57)) && charCode !== 46) {
-                evt.preventDefault();
-            } else {
-                return true;
-            }
-        }
+  data() {
+    return {
+      items: [],
+      newItem: {
+        name: "",
+        amount: null,
+      },
+      sumAward: 0,
+      sumAmount: 0,
+    };
+  },
+  created() {
+    var data = Vue.localStorage.get("award");
+    if (data) {
+      this.items = JSON.parse(Vue.localStorage.get("award"));
+      this.$store.commit(
+        "SET_REPORT",
+        this.items.filter((it) => it.status).length
+      );
+      this.$store.commit(
+        "SET_AWARD",
+        this.items.filter((la) => !la.status).length
+      );
+      this.findSumAward();
     }
-}
+  },
+
+  methods: {
+    insertItem() {
+      if (
+        this.newItem.name &&
+        (this.newItem.amount != 0 && this.newItem.amount)
+      ) {
+        var id =
+          "A" +
+          Math.floor(Math.random() * 10) +
+          Math.floor(Math.random() * 10) +
+          +Math.floor(Math.random() * 10) +
+          +Math.floor(Math.random() * 10) +
+          +Math.floor(Math.random() * 10) +
+          new Date().getTime();
+        this.items.push({
+          id: id,
+          name: this.newItem.name,
+          amount: this.newItem.amount,
+          status: false,
+        });
+        this.newItem.name = "";
+        this.newItem.amount = "";
+        this.findSumAward();
+        this.$store.commit(
+          "SET_AWARD",
+          this.items.filter((la) => !la.status).length
+        );
+        Vue.localStorage.set("award", JSON.stringify(this.items));
+      }
+    },
+    deleteItem(id) {
+      var key = this.items.map((item) => item.id).indexOf(id);
+      if (key != -1) {
+        if (this.items[key].status) {
+          this.$swal({
+            title: "ต้องการลบ ?",
+            text:
+              "คุณกำลังจะลบรางวัลที่เสร็จสิ้นแล้ว หลังจากลบแล้วข้อมูลรายงานและสิทธิ์จะถูกนำกลับคืนไปยังผู้เข้าร่วมทัน",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+          }).then((result) => {
+            if (result.value) {
+              this.restorePrivilege(this.items[key].id, this.items[key].lucky);
+              this.items.splice(key, 1);
+              this.$store.commit(
+                "SET_AWARD",
+                this.items.filter((la) => !la.status).length
+              );
+              this.$store.commit(
+                "SET_REPORT",
+                this.items.filter((it) => it.status).length
+              );
+              Vue.localStorage.set("award", JSON.stringify(this.items));
+            }
+          });
+        } else {
+          this.items.splice(key, 1);
+          Vue.localStorage.set("award", JSON.stringify(this.items));
+        }
+      }
+    },
+    restorePrivilege(itemId, listLucky) {
+      var data = Vue.localStorage.get("user");
+      if (data) {
+        var listUser = JSON.parse(data);
+        listLucky.forEach((lc) => {
+          var key = listUser.map((lu) => lu.PERSONID).indexOf(lc.PERSONID);
+          if (key != -1) {
+            listUser[key].privilege += 1;
+            var keyItem = listUser[key].inventory
+              .map((iv) => iv.id)
+              .indexOf(itemId);
+            if (keyItem != -1) {
+              listUser[key].inventory.splice(keyItem, 1);
+            }
+          }
+        });
+        Vue.localStorage.set("user", JSON.stringify(listUser));
+      }
+    },
+    findSumAward() {
+      this.sumAward = this.items.reduce((acc, current) => {
+        return +current.amount + acc;
+      }, 0);
+      var award = this.items.filter((it) => !it.status);
+
+      this.sumAmount = award.reduce((acc, current) => {
+        return +current.amount + acc;
+      }, 0);
+    },
+    onPaste(evt) {
+      evt.preventDefault();
+    },
+    isNumber(evt) {
+      evt = evt ? evt : window.event;
+      var charCode = evt.which ? evt.which : evt.keyCode;
+      if (
+        charCode > 31 &&
+        (charCode < 48 || charCode > 57) &&
+        charCode !== 46
+      ) {
+        evt.preventDefault();
+      } else {
+        return true;
+      }
+    },
+  },
+};
 </script>
 
 
 <style scoped>
-.bg { 
-  background: url(./../assets/pattern.jpg) no-repeat center center fixed; 
+.bg {
+  background: url(./../assets/pattern.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
   background-size: cover;
 }
-    .header{
-    width: 100%;
-    /* padding: 30px; */
-    background-color:#FFFFFF;
-    
+.header {
+  width: 100%;
+  /* padding: 30px; */
+  background-color: #ffffff;
+}
+.header-font {
+  font-family: "Google Sans", Roboto, Arial, sans-serif;
+  font-weight: 400;
+  line-height: 2.25rem;
 
-    }
-    .header-font{
-  font-family: 'Google Sans',Roboto,Arial,sans-serif;
-    font-weight: 400;
-    line-height: 2.25rem;
-    
-    width: auto;
+  width: auto;
 }
 .card-body {
-    position: relative;
-    text-align: center;
-    color: white;
+  position: relative;
+  text-align: center;
+  color: white;
 }
-.reward{
-    width: 100%;
-    border-radius: 10px;
-    background-color: #2196F3;
-    padding: 5px;
+.reward {
+  width: 100%;
+  border-radius: 10px;
+  background-color: #2196f3;
+  padding: 5px;
 }
-.reward-text{
-    color:#00C853;
+.reward-text {
+  color: #00c853;
 }
-.reward-complete{
-    width: 100%;
-    border-radius: 10px;
-    background-color: #00C853;
-    padding: 5px;
+.reward-complete {
+  width: 100%;
+  border-radius: 10px;
+  background-color: #00c853;
+  padding: 5px;
 }
 .top-right {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
-    background-color: #F44336;
-    padding: 5px;
-    padding-left: 5px;
-    position: absolute;
-    top: 20px;
-    right: 0px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  background-color: #f44336;
+  padding: 5px;
+  padding-left: 5px;
+  position: absolute;
+  top: 20px;
+  right: 0px;
 }
-.card-body{
-    padding-top:20px;
-    padding-bottom:20px;
-    background-color: #FFF3E0;
+.card-body {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #fff3e0;
 }
-
 </style>
-
-
-
-
