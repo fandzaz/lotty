@@ -84,7 +84,7 @@
                             </td>
                              <td>จำนวน</td>
                             <td>{{n.lucky.length}} / {{n.amount}}</td>
-                            <td ><i style="color:red;cursor: pointer;" @click="deleteItem(n.id)" class="fa fa-trash fa-lg" aria-hidden="true"></i></td>
+                            <td v-if="n.lucky.length == 0" ><i style="color:red;cursor: pointer;" @click="deleteItem(n.id)" class="fa fa-trash fa-lg" aria-hidden="true"></i></td>
                         </tr>
                           
                         </tbody>
@@ -105,8 +105,6 @@
 </template>
 <script>
 import Vue from "vue";
-import store from "./../store/store";
-import { mapActions } from "vuex";
 import VueLocalStorage from "vue-localstorage";
 Vue.use(VueLocalStorage);
 export default {
