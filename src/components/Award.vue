@@ -35,7 +35,7 @@
                             <div class="row mt-3">
                                 <div class="col-2"></div>
                                 <div class="col-8">
-                                    <div v-if="!n.status" class="reward text-center box-shadow" ><b><i class="fa fa-gift" aria-hidden="true"></i> {{n.amount}} รางวัล</b></div>
+                                    <div v-if="!n.status" class="reward text-center box-shadow" ><b><i class="fa fa-gift" aria-hidden="true"></i> {{n.lucky.length}} / {{n.amount}} รางวัล</b></div>
                                     <div v-if="n.status" class="reward-complete text-center box-shadow" ><b><i class="fa fa-check-circle-o" aria-hidden="true"></i> เสร็จสิ้นแล้ว</b></div>
                                 </div>
                                 <div class="col-2"></div>
@@ -83,8 +83,8 @@
                                 {{n.name}}
                             </td>
                              <td>จำนวน</td>
-                            <td>{{n.amount}}</td>
-                            <td ><i style="color:red;cursor: pointer;" @click="deleteItem(n.id)" class="fa fa-trash fa-lg" aria-hidden="true"></i></td>
+                            <td>{{n.lucky.length}} / {{n.amount - n.lucky.length}}</td>
+                            <td v-if="n.lucky.length == 0" ><i style="color:red;cursor: pointer;" @click="deleteItem(n.id)" class="fa fa-trash fa-lg" aria-hidden="true"></i></td>
                         </tr>
                           
                         </tbody>
@@ -105,8 +105,6 @@
 </template>
 <script>
 import Vue from "vue";
-import store from "./../store/store";
-import { mapActions } from "vuex";
 import VueLocalStorage from "vue-localstorage";
 Vue.use(VueLocalStorage);
 export default {
@@ -155,6 +153,7 @@ export default {
           id: id,
           name: this.newItem.name,
           amount: this.newItem.amount,
+          lucky: [],
           status: false,
         });
         this.newItem.name = "";
