@@ -83,7 +83,7 @@
                                 {{n.name}}
                             </td>
                              <td>จำนวน</td>
-                            <td>{{n.lucky.length}} / {{n.amount}}</td>
+                            <td>{{n.lucky.length}} / {{n.amount - n.lucky.length}}</td>
                             <td v-if="n.lucky.length == 0" ><i style="color:red;cursor: pointer;" @click="deleteItem(n.id)" class="fa fa-trash fa-lg" aria-hidden="true"></i></td>
                         </tr>
                           
